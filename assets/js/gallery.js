@@ -6,8 +6,9 @@
 
   const grid = document.getElementById('gallery-grid');
 
-  if (grid && typeof GALLERY_ITEMS !== 'undefined') {
-    grid.innerHTML = GALLERY_ITEMS.map(item => {
+  function renderGallery(items) {
+    if (!grid) return;
+    grid.innerHTML = items.map(item => {
       const categoryLabel = item.category.charAt(0).toUpperCase() + item.category.slice(1);
       return `
         <div
@@ -32,6 +33,32 @@
       `;
     }).join('');
   }
+
+  // Auto-discovered photos from assets/images/gallery/ (dropped in via cPanel
+  // File Manager, no code changes needed). Falls back to just the curated
+  // GALLERY_ITEMS if the endpoint is unavailable.
+  async function loadAutoItems() {
+    try {
+      const res = await fetch('./assets/gallery-list.php', { cache: 'no-store' });
+      if (!res.ok) return [];
+      const data = await res.json();
+      return Array.isArray(data) ? data : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async function init() {
+    const baseItems = typeof GALLERY_ITEMS !== 'undefined' ? GALLERY_ITEMS : [];
+    const autoItems = await loadAutoItems();
+    renderGallery([...baseItems, ...autoItems]);
+    initInteractions();
+  }
+
+  init();
+
+  // --- Everything below depends on the rendered .gallery-item elements ---
+  function initInteractions() {
 
   // --- Elements ---
   const filterBtns   = document.querySelectorAll('[data-filter]');
@@ -214,8 +241,10 @@
     if (Math.abs(dx) > 50 && dy < 100) navigateLightbox(dx > 0 ? -1 : 1);
   }, { passive: true });
 
+  } // end initInteractions
 
-  // --- STATS COUNTER ---
+
+  // --- STATS COUNTER (independent of gallery items) ---
 
   const statsNumbers = document.querySelectorAll('.stats-number[data-count]');
 
