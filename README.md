@@ -58,7 +58,7 @@ SSL/TLS mode: Cloudflare → SSL/TLS → Overview → **Full** (cPanel currently
 
 ## Gallery photos
 
-Photos in `assets/images/gallery/` show up on the gallery page **automatically** — no code changes needed. `assets/gallery-list.php` scans that folder on each page load and `assets/js/gallery.js` fetches it and merges the results with the hand-picked entries in `assets/js/gallery-data.js`.
+Photos in `assets/images/gallery/` show up on the gallery page **automatically** — no code changes needed. `assets/gallery-list.php` scans that folder on each page load and `assets/js/gallery.js` fetches it and renders the results.
 
 To add a photo: just drop a `.jpg`/`.jpeg`/`.png`/`.webp` file into `assets/images/gallery/` (e.g. via cPanel File Manager, or `git push` + deploy) and reload the page.
 
@@ -67,7 +67,7 @@ To add a photo: just drop a `.jpg`/`.jpeg`/`.png`/`.webp` file into `assets/imag
 - **Portrait vs. landscape** grid card: detected automatically from the image's actual dimensions.
 - **Size**: resize/compress large photos before uploading (camera originals are often 10+ MB) — aim for under ~500KB, e.g. max 1600px on the long edge, JPEG quality ~75-80.
 
-The curated entries in `gallery-data.js` (referencing `assets/images/*.jpg`, not the `gallery/` subfolder) are unaffected and always shown first.
+`assets/js/gallery-data.js` is currently empty (`GALLERY_ITEMS = []`) — the gallery page shows only real photos from `assets/images/gallery/`. It still exists as an optional way to hand-pin specific images (e.g. from elsewhere in `assets/images/`) ahead of the auto-discovered ones, if ever needed; anything added there renders first.
 
 ## Known gotcha: 403 Forbidden after DNS goes live
 
