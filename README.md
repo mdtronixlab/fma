@@ -5,8 +5,14 @@ Static HTML/CSS/JS website for FMA, served from cPanel shared hosting with DNS o
 ## Structure
 
 - `index.html`, `gallery.html` — pages
-- `assets/` — images, CSS, JS
+- `assets/css/` — stylesheets
+- `assets/js/` — `script.js` (site-wide behavior), `components.js` (the `<class-card>` custom element), `gallery.js` (gallery page)
+- `assets/images/` — all images, including:
+  - `assets/images/gallery/` — gallery page photos (auto-discovered, see "Gallery photos" below)
+  - `assets/images/interior/` — homepage "Explore Our Gym" carousel photos
+- `assets/videos/` — homepage hero videos
 - `assets/gallery-list.php` — auto-lists gallery photos (see "Gallery photos" below)
+- `assets/_raw-originals/` — uncompressed camera originals kept locally for re-editing; **gitignored**, never deployed
 - `deploy.sh` — pushes `dev` to GitHub, then SSHes into the server to pull
 - `.htaccess` — clean URLs (e.g. `/gallery` serves `gallery.html`)
 - `.cpanel.yml` — cPanel Git Version Control deployment hook (unused by the current deploy flow, kept for reference)
@@ -67,7 +73,7 @@ To add a photo: just drop a `.jpg`/`.jpeg`/`.png`/`.webp` file into `assets/imag
 - **Portrait vs. landscape** grid card: detected automatically from the image's actual dimensions.
 - **Size**: resize/compress large photos before uploading (camera originals are often 10+ MB) — aim for under ~500KB, e.g. max 1600px on the long edge, JPEG quality ~75-80.
 
-`assets/js/gallery-data.js` is currently empty (`GALLERY_ITEMS = []`) — the gallery page shows only real photos from `assets/images/gallery/`. It still exists as an optional way to hand-pin specific images (e.g. from elsewhere in `assets/images/`) ahead of the auto-discovered ones, if ever needed; anything added there renders first.
+The gallery page shows **only** what's in `assets/images/gallery/` — no hardcoded list to keep in sync.
 
 ## Known gotcha: 403 Forbidden after DNS goes live
 

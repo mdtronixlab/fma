@@ -34,10 +34,9 @@
     }).join('');
   }
 
-  // Auto-discovered photos from assets/images/gallery/ (dropped in via cPanel
-  // File Manager, no code changes needed). Falls back to just the curated
-  // GALLERY_ITEMS if the endpoint is unavailable.
-  async function loadAutoItems() {
+  // Photos are discovered automatically from assets/images/gallery/ (drop a
+  // photo in there, e.g. via cPanel File Manager - no code changes needed).
+  async function loadItems() {
     try {
       const res = await fetch('./assets/gallery-list.php', { cache: 'no-store' });
       if (!res.ok) return [];
@@ -49,9 +48,7 @@
   }
 
   async function init() {
-    const baseItems = typeof GALLERY_ITEMS !== 'undefined' ? GALLERY_ITEMS : [];
-    const autoItems = await loadAutoItems();
-    renderGallery([...baseItems, ...autoItems]);
+    renderGallery(await loadItems());
     initInteractions();
   }
 
