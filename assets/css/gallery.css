@@ -64,6 +64,21 @@
   margin-bottom: 16px;
 }
 
+.page-hero .gallery-filter {
+  margin-top: 32px;
+  margin-bottom: 0;
+}
+
+.page-hero .filter-btn {
+  color: var(--silver-metallic);
+  border-color: hsl(0, 0%, 100%, 0.25);
+}
+
+.page-hero .filter-btn:hover {
+  color: var(--white);
+  border-color: var(--coquelicot);
+}
+
 .page-hero-text {
   font-family: var(--ff-rubik);
   font-size: var(--fs-5);

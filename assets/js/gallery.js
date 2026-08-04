@@ -151,8 +151,17 @@
     isBusy = false;
   }
 
+  function scrollToGrid() {
+    if (!grid) return;
+    const header = document.querySelector('.header');
+    const offset = (header ? header.offsetHeight : 0) + 20;
+    const top = grid.getBoundingClientRect().top + window.scrollY - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
+
   filterBtns.forEach(btn => {
     btn.addEventListener('click', () => {
+      scrollToGrid();
       if (btn.classList.contains('active')) return;
       filterBtns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');

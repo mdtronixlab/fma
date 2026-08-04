@@ -229,3 +229,55 @@ const fetchTeam = async function () {
 }
 
 fetchTeam();
+
+
+
+/**
+ * Load client transformation photos (auto-discovered, same source as the
+ * gallery page). Drop a photo prefixed "transformation-" into
+ * assets/images/gallery/ and it shows up here automatically.
+ */
+
+const transformationList = document.getElementById("transformation-list");
+const fetchTransformations = async function () {
+  if (!transformationList) return;
+
+  try {
+    const response = await fetch("./assets/gallery-list.php", { cache: "no-store" });
+    const data = await response.json();
+    const items = Array.isArray(data)
+      ? data.filter(item => item.category === "transformation")
+      : [];
+
+    if (items.length === 0) {
+      transformationList.innerHTML = `<li class="scrollbar-item"><p class="section-text text-center">Client transformations coming soon.</p></li>`;
+      return;
+    }
+
+    transformationList.innerHTML = "";
+
+    items.forEach(item => {
+      const li = document.createElement("li");
+      li.classList.add("scrollbar-item");
+
+      li.innerHTML = `
+        <div class="class-card">
+          <figure class="card-banner img-holder" style="--width: 416; --height: 240">
+            <img src="${item.image}" width="416" height="240" loading="lazy" alt="${item.alt}" class="img-cover">
+          </figure>
+
+          <div class="card-content">
+            <h3 class="h3 card-title">${item.title}</h3>
+          </div>
+        </div>
+      `;
+
+      transformationList.appendChild(li);
+    });
+  } catch (error) {
+    console.error("Error fetching transformation photos:", error);
+    transformationList.innerHTML = `<li class="scrollbar-item"><p class="section-text text-center">Client transformations coming soon.</p></li>`;
+  }
+}
+
+fetchTransformations();
