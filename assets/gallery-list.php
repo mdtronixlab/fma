@@ -5,7 +5,7 @@
  * folder (e.g. via cPanel File Manager) and reload the page.
  *
  * Optional filename prefix sets the filter category:
- *   training-*.jpg | classes-*.jpg | lifestyle-*.jpg
+ *   training-*.jpg | transformation-*.jpg | lifestyle-*.jpg
  * No recognized prefix defaults to "training". The rest of the filename
  * becomes the display title (dashes/underscores -> spaces, title-cased).
  * Portrait vs. landscape is detected from the actual image dimensions.
@@ -15,7 +15,7 @@ header('Content-Type: application/json');
 
 $dir = __DIR__ . '/images/gallery';
 $publicPath = './assets/images/gallery/';
-$categories = ['training', 'classes', 'lifestyle'];
+$categories = ['training', 'transformation', 'lifestyle'];
 $allowedExt = ['jpg', 'jpeg', 'png', 'webp'];
 
 $items = [];

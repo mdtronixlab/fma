@@ -6,7 +6,7 @@ Static HTML/CSS/JS website for FMA, served from cPanel shared hosting with DNS o
 
 - `index.html`, `gallery.html` — pages
 - `assets/css/` — stylesheets
-- `assets/js/` — `script.js` (site-wide behavior), `components.js` (the `<class-card>` custom element), `gallery.js` (gallery page)
+- `assets/js/` — `script.js` (site-wide behavior; also fetches transformation photos, see "Gallery photos" below), `components.js` (the `<class-card>` custom element), `gallery.js` (gallery page)
 - `assets/images/` — all images, including:
   - `assets/images/gallery/` — gallery page photos (auto-discovered, see "Gallery photos" below)
   - `assets/images/interior/` — homepage "Explore Our Gym" carousel photos
@@ -64,16 +64,27 @@ SSL/TLS mode: Cloudflare → SSL/TLS → Overview → **Full** (cPanel currently
 
 ## Gallery photos
 
-Photos in `assets/images/gallery/` show up on the gallery page **automatically** — no code changes needed. `assets/gallery-list.php` scans that folder on each page load and `assets/js/gallery.js` fetches it and renders the results.
+Photos in `assets/images/gallery/` show up on the gallery page **automatically** — no code changes needed. `assets/gallery-list.php` scans that folder on each page load; `assets/js/gallery.js` fetches it for the gallery page, and `assets/js/script.js` fetches it for the homepage "Transformation" section.
 
 To add a photo: just drop a `.jpg`/`.jpeg`/`.png`/`.webp` file into `assets/images/gallery/` (e.g. via cPanel File Manager, or `git push` + deploy) and reload the page.
 
-- **Category** (training/classes/lifestyle filter): give the filename a prefix, e.g. `classes-yoga-session.jpg`. No recognized prefix defaults to `training`.
+- **Category** (training/transformation/lifestyle filter): give the filename a prefix, e.g. `transformation-john-doe.jpg`. No recognized prefix defaults to `training`. Photos tagged `transformation-*` also appear in the homepage "Transformation" section automatically.
 - **Title**: derived from the rest of the filename — dashes/underscores become spaces, title-cased (e.g. `training-leg-day-setup.jpg` → "Leg Day Setup").
 - **Portrait vs. landscape** grid card: detected automatically from the image's actual dimensions.
 - **Size**: resize/compress large photos before uploading (camera originals are often 10+ MB) — aim for under ~500KB, e.g. max 1600px on the long edge, JPEG quality ~75-80.
 
 The gallery page shows **only** what's in `assets/images/gallery/` — no hardcoded list to keep in sync.
+
+### Photo storage on the server
+
+Full-size gallery and interior photos are kept in `/home/cb4jf27barw2/images/gallery` and `/home/cb4jf27barw2/images/interior` — outside `public_html`, so they aren't tracked by this repo's deploy flow. `public_html/assets/images/gallery` and `public_html/assets/images/interior` are symlinks into that folder, so the site serves them at the normal `./assets/images/gallery/...` / `./assets/images/interior/...` URLs without any code changes.
+
+Locally, the equivalent staging folders are `D:\DEV\Web\FMA\images\gallery` and `D:\DEV\Web\FMA\images\interior` — copy from there into this repo's `assets/images/gallery/` / `assets/images/interior/` for local testing (there's no symlink locally, just plain copies).
+
+| Local (dev machine)                    | Server                                          |
+|-----------------------------------------|--------------------------------------------------|
+| `D:\DEV\Web\FMA\images\gallery`         | `/home/cb4jf27barw2/images/gallery` (symlinked from `public_html/assets/images/gallery`) |
+| `D:\DEV\Web\FMA\images\interior`        | `/home/cb4jf27barw2/images/interior` (symlinked from `public_html/assets/images/interior`) |
 
 ## Known gotcha: 403 Forbidden after DNS goes live
 
