@@ -1,7 +1,65 @@
 RewriteEngine On
 
+# Canonicalize: redirect direct .html requests to the clean URL, so search
+# engines only ever index one form (e.g. /gallery.html -> /gallery).
+# index.html is special-cased to redirect to / (root), not /index.
+RewriteCond %{THE_REQUEST} \s/+index\.html[\s?] [NC]
+RewriteRule ^ /? [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ /%1 [R=301,L]
+
 # Serve the matching .html file for extensionless requests (e.g. /gallery -> gallery.html)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.html -f
 RewriteRule ^(.*)$ $1.html [L]
+
+# ---------------------------------------------------------------------------
+# Compression — cuts transfer size for text-based assets significantly.
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+  AddOutputFilterByType DEFLATE application/json application/xml application/rss+xml
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Browser caching — images/fonts/videos rarely change once deployed, so
+# cache them long-term; HTML and the admin-managed manifest.json files stay
+# short/no-cache since their content changes without the filename changing.
+# ---------------------------------------------------------------------------
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType application/json "access plus 0 seconds"
+
+  # Shorter than the image/video rule below on purpose: CSS/JS get edited
+  # in place (same filename) as the site evolves, with no cache-busting
+  # query string in place — a long cache here would mean returning
+  # visitors don't see a deployed fix/change for weeks.
+  ExpiresByType text/css "access plus 1 week"
+  ExpiresByType application/javascript "access plus 1 week"
+  ExpiresByType text/javascript "access plus 1 week"
+
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType image/webp "access plus 1 year"
+  ExpiresByType image/svg+xml "access plus 1 year"
+  ExpiresByType image/x-icon "access plus 1 year"
+  ExpiresByType video/mp4 "access plus 1 year"
+  ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+<IfModule mod_headers.c>
+  # manifest.json changes via /admin without its filename changing, so it
+  # must never be served from a stale cache — belt-and-suspenders alongside
+  # the ExpiresByType rule above (some CDNs/browsers weigh Cache-Control
+  # over Expires).
+  <FilesMatch "manifest\.json$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

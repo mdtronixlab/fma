@@ -3,7 +3,7 @@
 (function () {
   const csrfToken = document.body.dataset.csrf;
   const MAX_DIMENSION = 1600;
-  const JPEG_QUALITY = 0.82;
+  const COMPRESS_QUALITY = 0.82;
 
   // All admin endpoints and asset links are root-relative on purpose: this
   // page can be reached as both "/admin" and "/admin/" (no trailing slash
@@ -32,9 +32,24 @@
     return words.replace(/\w\S*/g, (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
   }
 
+  function canvasToBlob(canvas, type, quality) {
+    return new Promise((resolve) => canvas.toBlob(resolve, type, quality));
+  }
+
+  /** Just for the FormData filename hint — upload.php sniffs the real bytes
+   *  via getimagesize(), it doesn't trust this, but an accurate extension
+   *  makes server-side logs/debugging less confusing. */
+  function extensionForBlob(blob) {
+    const map = { 'image/webp': 'webp', 'image/jpeg': 'jpg', 'image/png': 'png' };
+    return map[blob.type] || 'jpg';
+  }
+
   /** Resize + re-encode an image file client-side so clients never have to
-   *  think about file size. Falls back to the original file if the browser
-   *  can't do canvas/bitmap work for some reason. */
+   *  think about file size. Prefers WebP (meaningfully smaller than JPEG at
+   *  the same visual quality); a browser that silently ignores the
+   *  requested type (older Safari falls back to PNG, which would be huge
+   *  here) gets detected and retried as JPEG instead. Falls back to the
+   *  original file if the browser can't do canvas/bitmap work at all. */
   async function compressImage(file) {
     try {
       const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
@@ -49,9 +64,10 @@
       ctx.drawImage(bitmap, 0, 0, width, height);
       bitmap.close();
 
-      const blob = await new Promise((resolve) =>
-        canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
-      );
+      let blob = await canvasToBlob(canvas, 'image/webp', COMPRESS_QUALITY);
+      if (!blob || blob.type !== 'image/webp') {
+        blob = await canvasToBlob(canvas, 'image/jpeg', COMPRESS_QUALITY);
+      }
       if (!blob) return file;
       // Only use the compressed version if it's actually smaller.
       return blob.size < file.size ? blob : file;
@@ -310,7 +326,7 @@
         form.append('type', 'gallery');
         form.append('category', category);
         form.append('title', item.title || titleCaseFromFilename(item.file.name));
-        form.append('photo', blob, 'photo.jpg');
+        form.append('photo', blob, `photo.${extensionForBlob(blob)}`);
 
         await api(ADMIN_BASE + 'upload.php', { method: 'POST', body: form });
         item.status = 'done';
@@ -374,7 +390,7 @@
       form.append('type', 'team');
       form.append('name', teamNameInput.value.trim());
       form.append('designation', teamDesignationInput.value.trim() || 'Trainer');
-      form.append('photo', blob, 'photo.jpg');
+      form.append('photo', blob, `photo.${extensionForBlob(blob)}`);
 
       await api(ADMIN_BASE + 'upload.php', { method: 'POST', body: form });
       toast('Team member added.');
