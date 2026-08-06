@@ -135,15 +135,14 @@ photos get added, so there's no separate manual/cPanel workflow to keep in
 sync with it. It's documented for the client in `guide.md`. Implementation
 notes for developers:
 
-- **Auth**: single shared password, stored in plain text in `admin/config.php`
-  (gitignored — never committed) and compared with a timing-safe
-  `hash_equals()` — no bcrypt hashing step to run. Sessions are
-  cookie-based (`HttpOnly`, `SameSite=Lax`), scoped to `/` (see
-  `admin/auth.php` for why it's not scoped to `/admin/`).
-- **First-time setup on a new environment** (the password isn't in git, so
-  this is needed once per server/checkout):
+- **Auth**: single shared password, checked against a bcrypt hash in
+  `admin/config.php` (gitignored — never committed). Sessions are
+  cookie-based (`HttpOnly`, `SameSite=Lax`), scoped to `/admin/`.
+- **First-time setup on a new environment** (the hash isn't in git, so this
+  is needed once per server/checkout):
   1. Copy `admin/config.sample.php` to `admin/config.php`.
-  2. Edit the `password` value directly — plain text, no generation step.
+  2. Generate a hash: `php -r "echo password_hash('YOUR-PASSWORD', PASSWORD_DEFAULT), PHP_EOL;"`
+  3. Paste the output into `config.php`'s `password_hash` value.
   - On the live server this can be done over SSH directly in
     `~/public_html/admin/`, since `config.php` isn't deployed by git.
   - Also run `php scripts/migrate-manifest.php` once (see "Gallery photos"

@@ -50,9 +50,9 @@ setcookie(session_name(), '', [
 $configPath = __DIR__ . '/config.php';
 $config = is_file($configPath) ? require $configPath : null;
 
-function admin_password(): ?string {
+function admin_password_hash(): ?string {
     global $config;
-    return $config['password'] ?? null;
+    return $config['password_hash'] ?? null;
 }
 
 function is_logged_in(): bool {
