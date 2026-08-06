@@ -50,6 +50,9 @@ if (!is_logged_in()) {
         </div>
         <button type="submit" class="btn btn-accent" style="width:100%; justify-content:center;">Sign in</button>
       </form>
+      <p style="text-align:center; margin: 16px 0 0; font-size:13px;">
+        <a href="/">← Back to thefma.in</a>
+      </p>
     </div>
   </div>
 </body>
@@ -70,7 +73,10 @@ if (!is_logged_in()) {
 <body data-csrf="<?= htmlspecialchars(csrf_token()) ?>">
   <header class="topbar">
     <h1>FMA <span>Admin</span></h1>
-    <a href="/admin/logout.php" class="btn btn-ghost">Log out</a>
+    <div class="topbar-actions">
+      <a href="/" class="btn btn-ghost" target="_blank" rel="noopener noreferrer">View Site</a>
+      <a href="/admin/logout.php" class="btn btn-ghost">Log out</a>
+    </div>
   </header>
 
   <main class="container">
