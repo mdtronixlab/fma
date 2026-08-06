@@ -1,12 +1,16 @@
 <?php
 /**
  * Handles a single photo upload from the admin dashboard for either the
- * gallery or the team section. Builds the filename using the exact same
- * convention documented in guide.md, so the result is indistinguishable
- * from a photo someone dropped in via cPanel File Manager.
+ * gallery or the team section. This is the ONLY way a photo gets added to
+ * either section — it saves the file and records it in that folder's
+ * manifest.json, which is what the public site and the admin dashboard
+ * both read from. A file dropped into the folder by any other means (e.g.
+ * cPanel File Manager) will NOT appear on the site, by design — see
+ * admin/manifest.php.
  */
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/manifest.php';
 require_login();
 
 header('Content-Type: application/json');
@@ -115,8 +119,6 @@ if ($type === 'gallery') {
         fail('Please enter the team member\'s name.');
     }
 
-    // Use underscores inside each part so the filename's first hyphen stays
-    // the name/designation separator, per the convention in guide.md.
     $nameSlug = slugify($name, '_');
     $designationSlug = slugify($designation, '_');
     if ($nameSlug === '') {
@@ -143,8 +145,39 @@ if (!move_uploaded_file($file['tmp_name'], $destination)) {
 }
 chmod($destination, 0644);
 
-echo json_encode([
-    'ok'       => true,
-    'filename' => $filename,
-    'image'    => $publicPath . rawurlencode($filename),
-]);
+$image = $publicPath . rawurlencode($filename);
+
+if ($type === 'gallery') {
+    $portrait = $imageInfo[1] > $imageInfo[0];
+    $entry = [
+        'filename' => $filename,
+        'image'    => $image,
+        'title'    => $title,
+        'category' => $category,
+        'alt'      => $title,
+        'portrait' => $portrait,
+    ];
+} else {
+    $entry = [
+        'filename'    => $filename,
+        'image'       => $image,
+        'name'        => ucwords(str_replace(['_', '-'], ' ', $name)),
+        'designation' => ucwords(str_replace(['_', '-'], ' ', $designation)),
+    ];
+}
+
+try {
+    update_manifest($dir, function (array $items) use ($entry) {
+        array_unshift($items, $entry);
+        return $items;
+    });
+} catch (Throwable $e) {
+    // The file made it to disk but the manifest write failed — remove the
+    // orphaned file rather than leave a photo that's on disk but invisible
+    // everywhere (including the admin dashboard, since it also reads the
+    // manifest), which would be a confusing state to debug later.
+    @unlink($destination);
+    fail('Photo saved but could not be listed — try again.', 500);
+}
+
+echo json_encode(['ok' => true] + $entry);

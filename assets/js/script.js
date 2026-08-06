@@ -189,9 +189,9 @@ if (sectionVideos.length) {
 /**
  * Fetch Team Data
  *
- * Team members are auto-discovered from assets/images/team/ (same idea as
- * the gallery photos) - just drop a photo named "Name-Designation.jpg" in
- * that folder via cPanel File Manager and reload the page.
+ * Team members are managed exclusively through /admin (see
+ * admin/upload.php), which writes them into this manifest — a plain
+ * static JSON file, not a PHP endpoint.
  */
 
 const teamList = document.getElementById("team-list");
@@ -199,7 +199,7 @@ const fetchTeam = async function () {
   if (!teamList) return;
 
   try {
-    const response = await fetch("./assets/team-list.php", { cache: "no-store" });
+    const response = await fetch("./assets/images/team/manifest.json", { cache: "no-store" });
     const data = await response.json();
 
     if (Array.isArray(data) && data.length > 0) {
@@ -217,7 +217,7 @@ const fetchTeam = async function () {
 
             <div class="card-content">
               <h3 class="h3 card-title">${member.name}</h3>
-              <p class="card-subtitle">${member.title}</p>
+              <p class="card-subtitle">${member.designation}</p>
             </div>
           </div>
         `;
@@ -238,9 +238,9 @@ fetchTeam();
 
 
 /**
- * Load client transformation photos (auto-discovered, same source as the
- * gallery page). Drop a photo prefixed "transformation-" into
- * assets/images/gallery/ and it shows up here automatically.
+ * Load client transformation photos (same manifest as the gallery page).
+ * Uploading a photo under the "Transformation" category in /admin makes
+ * it show up here automatically.
  */
 
 const transformationList = document.getElementById("transformation-list");
@@ -248,7 +248,7 @@ const fetchTransformations = async function () {
   if (!transformationList) return;
 
   try {
-    const response = await fetch("./assets/gallery-list.php", { cache: "no-store" });
+    const response = await fetch("./assets/images/gallery/manifest.json", { cache: "no-store" });
     const data = await response.json();
     const items = Array.isArray(data)
       ? data.filter(item => item.category === "transformation")

@@ -10,7 +10,12 @@
 
 session_set_cookie_params([
     'lifetime' => 0,
-    'path'     => '/admin/',
+    // Deliberately '/', not '/admin/': per RFC 6265 path-matching, a cookie
+    // scoped to '/admin/' (trailing slash) does NOT match a bare "/admin"
+    // request (no trailing slash) — only "/admin/" and below. Apache will
+    // normally 301-redirect "/admin" -> "/admin/" before PHP ever runs, so
+    // this wouldn't usually bite, but it's not worth depending on that.
+    'path'     => '/',
     'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
     'httponly' => true,
     'samesite' => 'Lax',
