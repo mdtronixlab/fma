@@ -6,12 +6,12 @@ $loginError = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['password'])) {
     require_csrf();
 
-    $hash = admin_password_hash();
-    if ($hash === null || str_contains($hash, 'REPLACE')) {
+    $password = admin_password();
+    if ($password === null || str_contains($password, 'REPLACE')) {
         $loginError = 'Admin password is not configured yet — see admin/config.sample.php.';
     } elseif (($_SESSION['failed_logins'] ?? 0) > 20) {
         $loginError = 'Too many failed attempts. Try again later.';
-    } elseif (password_verify($_POST['password'], $hash)) {
+    } elseif (hash_equals($password, $_POST['password'])) {
         clear_failed_logins();
         session_regenerate_id(true);
         $_SESSION['admin_logged_in'] = true;
