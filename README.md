@@ -13,6 +13,7 @@ Static HTML/CSS/JS website for FMA, served from cPanel shared hosting with DNS o
 - `assets/videos/` — homepage hero videos
 - `assets/gallery-list.php` — auto-lists gallery photos (see "Gallery photos" below)
 - `assets/_raw-originals/` — uncompressed camera originals kept locally for re-editing; **gitignored**, never deployed
+- `admin/` — password-protected client admin panel for uploading/deleting gallery & team photos without cPanel (see "Client admin panel" below)
 - `deploy.sh` — pushes `dev` to GitHub, then SSHes into the server to pull
 - `.htaccess` — clean URLs (e.g. `/gallery` serves `gallery.html`)
 - `.cpanel.yml` — cPanel Git Version Control deployment hook (unused by the current deploy flow, kept for reference)
@@ -85,6 +86,42 @@ Locally, the equivalent staging folders are `D:\DEV\Web\FMA\images\gallery` and 
 |-----------------------------------------|--------------------------------------------------|
 | `D:\DEV\Web\FMA\images\gallery`         | `/home/cb4jf27barw2/images/gallery` (symlinked from `public_html/assets/images/gallery`) |
 | `D:\DEV\Web\FMA\images\interior`        | `/home/cb4jf27barw2/images/interior` (symlinked from `public_html/assets/images/interior`) |
+
+## Client admin panel
+
+`admin/` is a small self-contained PHP app (session login + AJAX upload/delete)
+that lets the client add/remove gallery and team photos from a browser at
+`thefma.in/admin`, without touching cPanel. It's documented for the client
+in `guide.md` (Part 0). Implementation notes for developers:
+
+- **Auth**: single shared password, checked against a bcrypt hash in
+  `admin/config.php` (gitignored — never committed). Sessions are
+  cookie-based (`HttpOnly`, `SameSite=Lax`), scoped to `/admin/`.
+- **First-time setup on a new environment** (the hash isn't in git, so this
+  is needed once per server/checkout):
+  1. Copy `admin/config.sample.php` to `admin/config.php`.
+  2. Generate a hash: `php -r "echo password_hash('YOUR-PASSWORD', PASSWORD_DEFAULT), PHP_EOL;"`
+  3. Paste the output into `config.php`'s `password_hash` value.
+  - On the live server this can be done over SSH directly in
+    `~/public_html/admin/`, since `config.php` isn't deployed by git.
+- **Upload flow**: the browser resizes/re-encodes photos client-side (canvas,
+  max 1600px, JPEG q≈0.82) before sending, so the client never has to think
+  about file size. `admin/upload.php` re-validates the file server-side
+  (real image sniffing via `getimagesize`, 8MB hard cap, extension
+  whitelist) and writes it into `assets/images/gallery/` or
+  `assets/images/team/` using the **same filename convention** as the manual
+  cPanel method (see `guide.md`), so both paths stay interchangeable.
+- **Delete flow**: `admin/delete.php` only unlinks files by exact basename
+  inside the two known image folders (path-traversal guarded via
+  `realpath()` containment check).
+- **CSRF**: a per-session token is required on every upload/delete request
+  (`admin/auth.php`'s `csrf_token()` / `require_csrf()`).
+- `admin/.htaccess` blocks direct requests to `config.php`/`config.sample.php`/`auth.php`.
+  (These are just as safe without it, since PHP executes rather than serves
+  them as source — this is defense in depth, not the only protection.)
+- Not implemented on purpose (kept simple for a single-client site): multiple
+  admin accounts, password reset UI, activity log. Ask the client to go
+  through the developer if the password needs rotating.
 
 ## Known gotcha: 403 Forbidden after DNS goes live
 

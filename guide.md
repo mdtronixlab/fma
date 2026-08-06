@@ -6,7 +6,40 @@ and what your options are if you want to update them.
 
 ---
 
-## Part 1: Adding Photos to the Gallery
+## Part 0: The Admin Panel (recommended)
+
+The easiest way to add or remove gallery and team photos is the built-in
+admin panel — no cPanel, no File Manager, no filename rules to remember.
+
+1. Go to **`thefma.in/admin`** and sign in with the password your developer
+   gave you.
+2. Pick the **Gallery Photos** or **Team Members** tab.
+3. Drag your photo(s) in (or click to choose files). For the gallery, pick a
+   category first; for a team member, fill in their name and title.
+4. Click **Upload** / **Add team member**.
+
+That's it — photos are automatically resized and compressed for you, so you
+don't need to prepare them first the way the manual method below requires.
+The same screen also shows every photo currently on the site with a
+**Delete** button next to each one, so removing or replacing something is
+just as easy.
+
+Under the hood, the admin panel writes into the exact same folders and uses
+the exact same filename convention described in Part 1 below — so if you
+ever *do* end up in cPanel for some reason (or want to batch-upload via
+`git push`), both methods stay in sync and neither will confuse the other.
+
+> **Forgot the password, or need it changed?** Ask your developer — it's
+> stored in `admin/config.php` on the server and isn't recoverable from the
+> site itself by design.
+
+---
+
+## Part 1: Adding Photos to the Gallery Manually (via cPanel)
+
+You normally won't need this section — the Admin Panel above is easier for
+day-to-day use. This is kept as a fallback for bulk uploads or if the admin
+panel is ever unavailable.
 
 The Gallery page (`thefma.in/gallery`) is set up to update **automatically**.
 Whatever photo you upload into the gallery folder appears on the site the

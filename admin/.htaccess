@@ -1,0 +1,8 @@
+Options -Indexes
+DirectoryIndex index.php
+
+# config.php holds the password hash; auth.php is a helper include, not an
+# entry point. Neither should ever be requested directly.
+<FilesMatch "^(config|config\.sample|auth)\.php$">
+  Require all denied
+</FilesMatch>
