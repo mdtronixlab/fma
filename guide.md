@@ -86,6 +86,61 @@ reload the gallery page in your browser and it will appear.
 
 ---
 
+## Part 1b: Adding / Updating Team Members
+
+The "Expert Trainers" section on the homepage works the **same way** as the
+gallery — no Google Sheet, no code changes. Whatever photo you upload into
+the team folder appears on the site the next time someone loads the page.
+
+### Step 1 — Prepare the photo
+
+Same as gallery photos: JPG, JPEG, PNG, or WEBP, kept under ~500 KB.
+
+### Step 2 — Name the file correctly
+
+The filename must be in this format:
+
+```
+Name-Designation.jpg
+```
+
+- Everything **before the first hyphen** becomes the trainer's name.
+- Everything **after the first hyphen** becomes their designation/title.
+- You can use spaces or underscores inside either part — both work and both
+  get automatically title-cased.
+
+**Examples:**
+
+| Filename                                   | Name on site   | Title on site      |
+|----------------------------------------------|-----------------|-----------------------|
+| `Rahul Verma-Head Trainer.jpg`              | Rahul Verma      | Head Trainer            |
+| `priya_sharma-yoga_instructor.png`          | Priya Sharma     | Yoga Instructor          |
+| `Amit-Trainer.webp`                          | Amit             | Trainer                  |
+| `Sonal.jpg` (no hyphen at all)              | Sonal            | Trainer *(default)*      |
+
+> Only the **first** hyphen counts as the name/designation separator. If a
+> name genuinely contains a hyphen (e.g. "Jean-Paul"), name the file with an
+> underscore instead (`Jean_Paul-Trainer.jpg`) to avoid it being cut early.
+
+### Step 3 — Upload it
+
+Log in to **cPanel → File Manager**, and go to:
+
+```
+public_html/assets/images/team
+```
+
+Upload your prepared, correctly-named photo into that folder. That's it —
+reload the homepage and the trainer will appear in the Team section.
+
+### Removing or replacing a team member
+
+- **Remove:** delete the file from that same folder.
+- **Replace:** delete the old file and upload the new one (renaming it if
+  their name/designation changed).
+
+---
+
 ## Part 2: Videos
 
 Video support works differently from photos, and it's **not** the same

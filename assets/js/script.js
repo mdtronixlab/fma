@@ -187,19 +187,22 @@ if (sectionVideos.length) {
 
 
 /**
- * Fetch Team Data from Google Sheets
+ * Fetch Team Data
+ *
+ * Team members are auto-discovered from assets/images/team/ (same idea as
+ * the gallery photos) - just drop a photo named "Name-Designation.jpg" in
+ * that folder via cPanel File Manager and reload the page.
  */
 
 const teamList = document.getElementById("team-list");
-const sheetID = "1e6nyWc-EUWDpEO3Rbht5ZVelU7AX5wob-t5PZ5wONts";
 const fetchTeam = async function () {
   if (!teamList) return;
 
   try {
-    const response = await fetch(`https://opensheet.elk.sh/${sheetID}/Sheet1`);
+    const response = await fetch("./assets/team-list.php", { cache: "no-store" });
     const data = await response.json();
-    console.log(data);
-    if (data.length > 0) {
+
+    if (Array.isArray(data) && data.length > 0) {
       teamList.innerHTML = ""; // Clear loading state
 
       data.forEach(member => {
@@ -209,18 +212,20 @@ const fetchTeam = async function () {
         li.innerHTML = `
           <div class="team-card">
             <figure class="card-banner img-holder" style="--width: 240; --height: 320">
-              <img src="${member.Photo}" width="240" height="320" loading="lazy" alt="${member.Name}" class="img-cover">
+              <img src="${member.image}" width="240" height="320" loading="lazy" alt="${member.name}" class="img-cover">
             </figure>
 
             <div class="card-content">
-              <h3 class="h3 card-title">${member.Name}</h3>
-              <p class="card-subtitle">${member.Title}</p>
+              <h3 class="h3 card-title">${member.name}</h3>
+              <p class="card-subtitle">${member.title}</p>
             </div>
           </div>
         `;
 
         teamList.appendChild(li);
       });
+    } else {
+      teamList.innerHTML = `<p class="section-text text-center">No team members added yet.</p>`;
     }
   } catch (error) {
     console.error("Error fetching team data:", error);
