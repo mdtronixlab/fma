@@ -8,6 +8,8 @@
  * config.sample.php and set your own hash). See guide.md for setup.
  */
 
+$cookieSecure = !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off';
+
 session_set_cookie_params([
     'lifetime' => 0,
     // Deliberately '/', not '/admin/': per RFC 6265 path-matching, a cookie
@@ -16,7 +18,7 @@ session_set_cookie_params([
     // normally 301-redirect "/admin" -> "/admin/" before PHP ever runs, so
     // this wouldn't usually bite, but it's not worth depending on that.
     'path'     => '/',
-    'secure'   => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+    'secure'   => $cookieSecure,
     'httponly' => true,
     'samesite' => 'Lax',
 ]);
@@ -27,6 +29,23 @@ if (empty($_SESSION['admin_started'])) {
     session_regenerate_id(true);
     $_SESSION['admin_started'] = time();
 }
+
+// Self-heal from an earlier version of this file that scoped the session
+// cookie to '/admin/' instead of '/': if that narrower-path cookie is still
+// sitting in the browser, expire it explicitly. Otherwise the browser holds
+// two same-named PHPSESSID cookies at once (one per path) and PHP can end
+// up reading whichever one it feels like, silently invalidating CSRF
+// tokens / login state. Must run LAST — session_start() and
+// session_regenerate_id() each send their own Set-Cookie for this same
+// cookie name and silently clobber any Set-Cookie queued before them.
+// Harmless no-op once nobody has the old cookie left.
+setcookie(session_name(), '', [
+    'expires'  => time() - 3600,
+    'path'     => '/admin/',
+    'secure'   => $cookieSecure,
+    'httponly' => true,
+    'samesite' => 'Lax',
+]);
 
 $configPath = __DIR__ . '/config.php';
 $config = is_file($configPath) ? require $configPath : null;
