@@ -6,97 +6,54 @@ and what your options are if you want to update them.
 
 ---
 
-## Part 1: Adding Photos to the Gallery
+## Part 1: Adding Gallery Photos & Team Members
 
-The Gallery page (`thefma.in/gallery`) is set up to update **automatically**.
-Whatever photo you upload into the gallery folder appears on the site the
-next time someone loads the page — no code changes needed.
+All gallery and team photos are managed through one place: the admin panel
+at **`thefma.in/admin`**. This is the **only** way to add, replace, or
+remove them — dropping a file directly into the images folder via cPanel
+File Manager will **not** make it appear on the site anymore.
 
-### Step 1 — Prepare the photo
+### Step 1 — Sign in
 
-- **File type:** JPG, JPEG, PNG, or WEBP
-- **File size:** Keep it under ~500 KB. Camera photos are often 10+ MB, which
-  slows the site down — resize/compress first (aim for max **1600px** on the
-  longest side, JPEG quality **75–80%**). Any free tool works for this
-  (e.g. Squoosh.app, TinyPNG, or your phone's built-in editor).
+Go to **`thefma.in/admin`** and sign in with the password your developer
+gave you.
 
-### Step 2 — Name the file correctly
+### Step 2 — Add a photo
 
-The filename controls **where it shows up** and **what title it gets** — so
-naming it right matters.
+Pick the **Gallery Photos** or **Team Members** tab.
 
-**a) Category prefix** (controls which filter tab it appears under):
+- **Gallery photo:** choose a category (Training / Transformation /
+  Lifestyle — Transformation photos also show up on the homepage
+  "Transformation" section automatically), then drag in one or more photos.
+  Each gets an editable title, which you can adjust before uploading.
+- **Team member:** enter their name and title, then choose one photo.
 
-| Prefix            | Shows under        |
-|--------------------|--------------------|
-| `training-...`     | Training            |
-| `transformation-...` | Transformation (also appears on the homepage "Transformation" section automatically) |
-| `lifestyle-...`     | Lifestyle            |
+Click **Upload** / **Add team member**. That's it — no filename rules to
+remember, and no need to resize or compress the photo first; it's done
+automatically (max 1600px, compressed) before it's sent.
 
-If you don't use one of these prefixes, the photo defaults to **Training**.
+### Step 3 — Remove or replace a photo
 
-**b) The rest of the filename becomes the title.** Dashes/underscores become
-spaces, and it's automatically title-cased.
+The same screen lists every photo currently on the site with a **Delete**
+button next to it. To replace one, delete the old one and upload the new
+one.
 
-**Examples:**
-
-| Filename                              | Category        | Title on site        |
-|----------------------------------------|------------------|------------------------|
-| `training-leg-day-setup.jpg`           | Training          | Leg Day Setup           |
-| `transformation-john-doe.jpg`          | Transformation    | John Doe                 |
-| `lifestyle-team-lunch.png`             | Lifestyle         | Team Lunch                |
-| `new-year-party.jpg` (no prefix)       | Training          | New Year Party            |
-
-> Portrait vs. landscape layout on the grid is detected automatically from
-> the photo itself — you don't need to do anything for that.
-
-### Step 3 — Upload it
-
-Log in to **cPanel → File Manager**, and go to:
-
-```
-public_html/assets/images/gallery
-```
-
-Upload your prepared, correctly-named photo into that folder. That's it —
-reload the gallery page in your browser and it will appear.
-
-> **Note on the folder path:** `public_html/assets/images/gallery` is a
-> shortcut (symlink) that points to the real storage location,
-> `/home/cb4jf27barw2/images/gallery`, which sits outside `public_html`.
-> Uploading into the `public_html/assets/images/gallery` shortcut works
-> normally in most cases. If cPanel File Manager ever shows that folder as
-> empty or won't let you upload into it (some File Managers don't follow
-> shortcuts well), navigate directly to `/home/cb4jf27barw2/images/gallery`
-> instead — either path leads to the same place.
-
-### Removing or replacing a photo
-
-- **Remove:** delete the file from that same folder.
-- **Replace:** delete the old file and upload the new one (or just upload a
-  new file with a different name and delete the old one).
-
-### Quick troubleshooting
-
-- **Photo isn't showing up?** Double check it's actually in
-  `assets/images/gallery` (not a different folder), and that the file
-  extension is one of `.jpg .jpeg .png .webp`.
-- **Wrong category or ugly title?** Re-check the filename against the table
-  above — this is almost always a filename issue.
+> **Forgot the password, or need it changed?** Ask your developer — it's
+> not recoverable from the site itself by design.
 
 ---
 
 ## Part 2: Videos
 
-Video support works differently from photos, and it's **not** the same
-auto-upload system.
+Video support works differently from photos, and it's **not** part of the
+admin panel above.
 
 ### What exists today
 
 The homepage has a small "Videos" section with **two fixed video clips**
-(`assets/videos/hero-video-1.mp4` and `hero-video-2.mp4`). These are not
-auto-discovered like gallery photos — the page is built to show exactly
-those two files.
+(`assets/videos/hero-video-1.mp4` and `hero-video-2.mp4`). These aren't
+managed through the admin panel — the page is built to show exactly those
+two files.
 
 > The **Gallery page itself does not currently display videos** — it's
 > photos only, at the moment.
@@ -115,14 +72,14 @@ If you want to swap out one of the existing homepage clips for a new one:
 ### If you want more than two videos, or a video gallery
 
 That requires a small code change (adding a proper video gallery, similar to
-the photo gallery, with auto-discovery, thumbnails, and playback controls).
-This isn't self-serve today — let your developer know and it can be added
-as a feature.
+the photo gallery, with thumbnails and playback controls). This isn't
+self-serve today — let your developer know and it can be added as a
+feature.
 
 ---
 
 ## Need help?
 
 If anything doesn't behave as described here (photo not appearing, video not
-playing, etc.), send a screenshot along with the exact filename you used to
-your developer, and it'll be quick to sort out.
+playing, etc.), send a screenshot along with what you did to your developer,
+and it'll be quick to sort out.

@@ -187,19 +187,22 @@ if (sectionVideos.length) {
 
 
 /**
- * Fetch Team Data from Google Sheets
+ * Fetch Team Data
+ *
+ * Team members are managed exclusively through /admin (see
+ * admin/upload.php), which writes them into this manifest — a plain
+ * static JSON file, not a PHP endpoint.
  */
 
 const teamList = document.getElementById("team-list");
-const sheetID = "1e6nyWc-EUWDpEO3Rbht5ZVelU7AX5wob-t5PZ5wONts";
 const fetchTeam = async function () {
   if (!teamList) return;
 
   try {
-    const response = await fetch(`https://opensheet.elk.sh/${sheetID}/Sheet1`);
+    const response = await fetch("./assets/images/team/manifest.json", { cache: "no-store" });
     const data = await response.json();
-    console.log(data);
-    if (data.length > 0) {
+
+    if (Array.isArray(data) && data.length > 0) {
       teamList.innerHTML = ""; // Clear loading state
 
       data.forEach(member => {
@@ -209,18 +212,20 @@ const fetchTeam = async function () {
         li.innerHTML = `
           <div class="team-card">
             <figure class="card-banner img-holder" style="--width: 240; --height: 320">
-              <img src="${member.Photo}" width="240" height="320" loading="lazy" alt="${member.Name}" class="img-cover">
+              <img src="${member.image}" width="240" height="320" loading="lazy" alt="${member.name}" class="img-cover">
             </figure>
 
             <div class="card-content">
-              <h3 class="h3 card-title">${member.Name}</h3>
-              <p class="card-subtitle">${member.Title}</p>
+              <h3 class="h3 card-title">${member.name}</h3>
+              <p class="card-subtitle">${member.designation}</p>
             </div>
           </div>
         `;
 
         teamList.appendChild(li);
       });
+    } else {
+      teamList.innerHTML = `<p class="section-text text-center">No team members added yet.</p>`;
     }
   } catch (error) {
     console.error("Error fetching team data:", error);
@@ -233,9 +238,9 @@ fetchTeam();
 
 
 /**
- * Load client transformation photos (auto-discovered, same source as the
- * gallery page). Drop a photo prefixed "transformation-" into
- * assets/images/gallery/ and it shows up here automatically.
+ * Load client transformation photos (same manifest as the gallery page).
+ * Uploading a photo under the "Transformation" category in /admin makes
+ * it show up here automatically.
  */
 
 const transformationList = document.getElementById("transformation-list");
@@ -243,7 +248,7 @@ const fetchTransformations = async function () {
   if (!transformationList) return;
 
   try {
-    const response = await fetch("./assets/gallery-list.php", { cache: "no-store" });
+    const response = await fetch("./assets/images/gallery/manifest.json", { cache: "no-store" });
     const data = await response.json();
     const items = Array.isArray(data)
       ? data.filter(item => item.category === "transformation")

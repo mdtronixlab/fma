@@ -34,11 +34,12 @@
     }).join('');
   }
 
-  // Photos are discovered automatically from assets/images/gallery/ (drop a
-  // photo in there, e.g. via cPanel File Manager - no code changes needed).
+  // Photos are managed exclusively through /admin (see admin/upload.php),
+  // which writes them into this manifest. It's a plain static JSON file,
+  // not a PHP endpoint, so this fetch works on any static host.
   async function loadItems() {
     try {
-      const res = await fetch('./assets/gallery-list.php', { cache: 'no-store' });
+      const res = await fetch('./assets/images/gallery/manifest.json', { cache: 'no-store' });
       if (!res.ok) return [];
       const data = await res.json();
       return Array.isArray(data) ? data : [];
